@@ -1,2 +1,5 @@
 /Source/Revolus.WhatsMissing/obj
 /Source/Revolus.WhatsMissing/packages
+/Source/Revolus.WhatsMissing/bin
+/Source/Revolus.WhatsMissing/.vs
+/v1.3/Assemblies/*.pdb
