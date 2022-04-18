@@ -11,17 +11,65 @@ using System.Text;
 using System.Linq;
 
 namespace Revolus.WhatsMissing {
+    public class Settings : ModSettings {
+        public int MaxTooltipsWidth = (int)ActiveTip.MaxWidth;
+        public bool HideZeroCountIngredients = true;
+        private string _maxTooltipsWidthBuffer;
+
+        public override void ExposeData() {
+            base.ExposeData();
+            Scribe_Values.Look(ref MaxTooltipsWidth, "MaxTooltipsWidth");
+            Scribe_Values.Look(ref HideZeroCountIngredients, "HideZeroCountIngredients");
+        }
+
+        public void DoSettingsWindowContents(Rect rect) {
+            var list = new Listing_Standard(GameFont.Small) { ColumnWidth = rect.width / 2 };
+            list.Begin(rect);
+            list.Gap();
+
+            list.CheckboxLabeled("Hide zero count ingredients", ref this.HideZeroCountIngredients);
+            list.TextFieldNumericLabeled("Max tooltips width", ref this.MaxTooltipsWidth, ref this._maxTooltipsWidthBuffer);
+            list.End();
+        }
+    }
+
+    [HarmonyPatch]
     public class WhatsMissingMod : Mod {
+        private static Settings _settings;
+
         public WhatsMissingMod(ModContentPack content) : base(content) {
             var harmony = new Harmony(nameof(WhatsMissingMod));
-            harmony.Patch(
-                Method(typeof(Dialog_BillConfig), nameof(Dialog_BillConfig.DoWindowContents), new Type[] { typeof(Rect) }),
-                transpiler: new HarmonyMethod(typeof(WhatsMissingMod), nameof(Patch__Dialog_BillConfig__DoWindowContents__Transpiler))
-            );
+            harmony.PatchAll();
+            _settings = this.GetSettings<Settings>();
         }
+
+        public override string SettingsCategory() => "Whats Missing";
+
+        public override void DoSettingsWindowContents(Rect rect) => _settings.DoSettingsWindowContents(rect);
 
         private static string MakeColor(int needed, int got) => $"<color=#{(got < 1 ? "F4003D" : got < needed ? "FFA400" : got < 2 * needed ? "BCF994" : "97B7EF")}>";
 
+        [HarmonyPatch(MethodType.Getter)]
+        [HarmonyPatch(typeof(ActiveTip), nameof(ActiveTip.TipRect))]
+        [HarmonyPrefix]
+        // Increase max width for big tooltips! Vanilla clamp width to 260f
+        public static bool ActiveTip_TipRect(ActiveTip __instance, ref Rect __result) {
+            if (_settings.MaxTooltipsWidth == (int) ActiveTip.MaxWidth) {
+                return true;
+            }
+
+            string finalText = __instance.FinalText;
+            Vector2 vector = Text.CalcSize(finalText);
+            if (vector.x > _settings.MaxTooltipsWidth) {
+                vector.x = _settings.MaxTooltipsWidth;
+                vector.y = Text.CalcHeight(finalText, vector.x);
+            }
+            __result = new Rect(0f, 0f, vector.x, vector.y).ContractedBy(-4f).RoundedCeil();
+            return false;
+        }
+
+        [HarmonyPatch(typeof(Dialog_BillConfig), nameof(Dialog_BillConfig.DoWindowContents), new Type[] { typeof(Rect) })]
+        [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> Patch__Dialog_BillConfig__DoWindowContents__Transpiler(IEnumerable<CodeInstruction> instructions) {
             var done = false;
 
@@ -162,17 +210,6 @@ namespace Revolus.WhatsMissing {
 
                     var tooltipNotAllowed = new StringBuilder();
 
-
-                    bool IsAllowedIng((ThingDef td, int count) i) {
-                        // check RimWorld.Bill:IsFixedOrAllowedIngredient
-                        return ingrAndCount.IsFixedIngredient && ingrAndCount.filter.Allows(i.td) ||
-                            bill.recipe.fixedIngredientFilter.Allows(i.td) && bill.ingredientFilter.Allows(i.td);
-                    }
-
-                    bool IsNotAllowedIng((ThingDef td, int count) i) {
-                        return !IsAllowedIng(i);
-                    }
-
                     ThingDef lastTd = null;
                     var tdCount = 0;
                     var labelList = new List<string>();
@@ -180,6 +217,16 @@ namespace Revolus.WhatsMissing {
                         .Select(kv => (needed: kv.Key, list: kv.Value))
                         .OrderBy(i => i.needed)) {
                         // tooltip.AppendLine();
+
+                        bool IsAllowedIng((ThingDef td, int count) i) {
+                            // check RimWorld.Bill:IsFixedOrAllowedIngredient
+                            return ingrAndCount.IsFixedIngredient && ingrAndCount.filter.Allows(i.td) ||
+                                   bill.recipe.fixedIngredientFilter.Allows(i.td) && bill.ingredientFilter.Allows(i.td);
+                        }
+
+                        bool IsNotAllowedIng((ThingDef td, int count) i) {
+                            return !IsAllowedIng(i);
+                        }
 
                         var allowed = list
                             .Where(IsAllowedIng)
@@ -191,28 +238,20 @@ namespace Revolus.WhatsMissing {
                             .GroupBy(i => i.count)
                             .OrderBy(i => -i.Key);
 
-                        foreach (var gotGroup in allowed) {
-                            var names = gotGroup.Select(i => i.td.label).ToList();
-                            names.Sort(StringComparer.InvariantCultureIgnoreCase);
-                            string content = string.Join("; ", names);
-                            if (gotGroup.Key == 0 && content.Length > 300) // clamp big list with 0 items
-                            {
-                                content = content.Substring(0, 300) + "...";
+                        void FillTooltip(IOrderedEnumerable<IGrouping<int, (ThingDef td, int count)>> orderedIngredients, StringBuilder sb) {
+                            foreach (var gotGroup in orderedIngredients) {
+                                var names = gotGroup.Select(i => i.td.label).ToList();
+                                names.Sort(StringComparer.InvariantCultureIgnoreCase);
+                                var content = string.Join("; ", names);
+                                if (gotGroup.Key != 0 || !_settings.HideZeroCountIngredients) {
+                                    sb.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
+                                }
                             }
-                            tooltip.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
                         }
 
-                        foreach (var gotGroup in notAllowed) {
-                            var names = gotGroup.Select(i => i.td.label).ToList();
-                            names.Sort(StringComparer.InvariantCultureIgnoreCase);
-                            string content = string.Join("; ", names);
-                            if (gotGroup.Key == 0 && content.Length > 300) // clamp big list with 0 items
-                            {
-                                content = content.Substring(0, 300) + "...";
-                            }
-                            tooltipNotAllowed.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
-                        }
-
+                        FillTooltip(allowed, tooltip);
+                        FillTooltip(notAllowed, tooltipNotAllowed);
+                        
                         // var got = recipe.allowMixingIngredients ? list.Select(i => i.count).Sum() : list.Select(i => i.count).Max();
                         int got = 0;
                         var ings = list.Where(IsAllowedIng).Select(i => i.count);
