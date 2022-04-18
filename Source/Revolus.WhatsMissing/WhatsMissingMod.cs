@@ -155,25 +155,74 @@ namespace Revolus.WhatsMissing {
                     
                     var tooltip = new StringBuilder();
                     tooltip.AppendLine(descr);
-                    tooltip.AppendLine("\nYou have \u2044 needed:");
+                    tooltip.AppendLine("\n<b>You have \u2044 needed:</b>");
                     if (recipe.allowMixingIngredients) {
                         tooltip.AppendLine("(mixing ingredients is possible)");
+                    }
+
+                    var tooltipNotAllowed = new StringBuilder();
+
+
+                    bool IsAllowedIng((ThingDef td, int count) i) {
+                        // check RimWorld.Bill:IsFixedOrAllowedIngredient
+                        return ingrAndCount.IsFixedIngredient && ingrAndCount.filter.Allows(i.td) ||
+                            bill.recipe.fixedIngredientFilter.Allows(i.td) && bill.ingredientFilter.Allows(i.td);
+                    }
+
+                    bool IsNotAllowedIng((ThingDef td, int count) i) {
+                        return !IsAllowedIng(i);
                     }
 
                     ThingDef lastTd = null;
                     var tdCount = 0;
                     var labelList = new List<string>();
-                    foreach (var (needed, list) in neededCountDict.Select(kv => (needed: kv.Key, list: kv.Value)).OrderBy(i => i.needed)) {
-                        tooltip.AppendLine();
-                        foreach (var gotGroup in list.GroupBy(i => i.count).OrderBy(i => -i.Key)) {
+                    foreach (var (needed, list) in neededCountDict
+                        .Select(kv => (needed: kv.Key, list: kv.Value))
+                        .OrderBy(i => i.needed)) {
+                        // tooltip.AppendLine();
+
+                        var allowed = list
+                            .Where(IsAllowedIng)
+                            .GroupBy(i => i.count)
+                            .OrderBy(i => -i.Key);
+
+                        var notAllowed = list
+                            .Where(IsNotAllowedIng)
+                            .GroupBy(i => i.count)
+                            .OrderBy(i => -i.Key);
+
+                        foreach (var gotGroup in allowed) {
                             var names = gotGroup.Select(i => i.td.label).ToList();
                             names.Sort(StringComparer.InvariantCultureIgnoreCase);
-                            tooltip.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {string.Join("; ", names)}");
+                            string content = string.Join("; ", names);
+                            if (gotGroup.Key == 0 && content.Length > 300) // clamp big list with 0 items
+                            {
+                                content = content.Substring(0, 300) + "...";
+                            }
+                            tooltip.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
                         }
 
-                        var got = recipe.allowMixingIngredients ? list.Select(i => i.count).Sum() : list.Select(i => i.count).Max();
+                        foreach (var gotGroup in notAllowed) {
+                            var names = gotGroup.Select(i => i.td.label).ToList();
+                            names.Sort(StringComparer.InvariantCultureIgnoreCase);
+                            string content = string.Join("; ", names);
+                            if (gotGroup.Key == 0 && content.Length > 300) // clamp big list with 0 items
+                            {
+                                content = content.Substring(0, 300) + "...";
+                            }
+                            tooltipNotAllowed.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
+                        }
+
+                        // var got = recipe.allowMixingIngredients ? list.Select(i => i.count).Sum() : list.Select(i => i.count).Max();
+                        int got = 0;
+                        var ings = list.Where(IsAllowedIng).Select(i => i.count);
+                        if (recipe.allowMixingIngredients && ings.Any())
+                            got = ings.Sum();
+                        else if (ings.Any())
+                            got = ings.Max();
+
                         var color = MakeColor(needed, got);
-                        labelList.Add($"{MakeColor(needed, got)}{needed}</color>");
+                        labelList.Add($"{color}{needed}</color>");
 
                         tdCount += list.Count;
                         lastTd = list[list.Count - 1].td;
@@ -181,6 +230,11 @@ namespace Revolus.WhatsMissing {
                     if (tdCount == 0) {
                         // impossible
                         continue;
+                    }
+
+                    if (tooltipNotAllowed.Length > 0) {
+                        tooltip.AppendLine("\n<b>Not allowed:</b>");
+                        tooltip.AppendLine(tooltipNotAllowed.ToString());
                     }
 
                     var labelRect = listing.Label(
