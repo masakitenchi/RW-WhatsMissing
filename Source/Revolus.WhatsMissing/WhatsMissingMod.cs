@@ -23,12 +23,12 @@ namespace Revolus.WhatsMissing {
         }
 
         public void DoSettingsWindowContents(Rect rect) {
-            var list = new Listing_Standard(GameFont.Small) { ColumnWidth = rect.width / 2 };
+            var list = new Listing_Standard(GameFont.Small) /*{ ColumnWidth = rect.width / 2 }*/;
             list.Begin(rect);
             list.Gap();
 
-            list.CheckboxLabeled("Hide zero count ingredients", ref this.HideZeroCountIngredients);
-            list.TextFieldNumericLabeled("Max tooltips width", ref this.MaxTooltipsWidth, ref this._maxTooltipsWidthBuffer);
+            list.CheckboxLabeled("WhatsMissing.Settings.HideZeroCountIngredients".Translate(), ref this.HideZeroCountIngredients);
+            list.TextFieldNumericLabeled("WhatsMissing.Settings.MaxTooltipsWidth".Translate(), ref this.MaxTooltipsWidth, ref this._maxTooltipsWidthBuffer);
             list.End();
         }
     }
@@ -159,8 +159,8 @@ namespace Revolus.WhatsMissing {
                     listing.Label($"{description}\n");
                 }
 
-                listing.Label("Requires (see tooltips, ingredients can be clicked):");
-                listing.Label($"{recipe.WorkAmountTotal(null):0} work");
+                listing.Label("WhatsMissing.Requires".Translate().ToString());
+                listing.Label($"{recipe.WorkAmountTotal(null):0} " + "WhatsMissing.WorkAmount".Translate().ToString());
 
                 var ingrValueGetter = recipe.IngredientValueGetter;
                 var ingredients = recipe.ingredients;
@@ -203,9 +203,9 @@ namespace Revolus.WhatsMissing {
                     
                     var tooltip = new StringBuilder();
                     tooltip.AppendLine(descr);
-                    tooltip.AppendLine("\n<b>You have \u2044 needed:</b>");
+                    tooltip.AppendLine("\n" + "WhatsMissing.HaveNeeded".Translate().ToString());
                     if (recipe.allowMixingIngredients) {
-                        tooltip.AppendLine("(mixing ingredients is possible)");
+                        tooltip.AppendLine("WhatsMissing.MixingPossible".Translate().ToString());
                     }
 
                     var tooltipNotAllowed = new StringBuilder();
@@ -244,7 +244,7 @@ namespace Revolus.WhatsMissing {
                                 names.Sort(StringComparer.InvariantCultureIgnoreCase);
                                 var content = string.Join("; ", names);
                                 if (gotGroup.Key != 0 || !_settings.HideZeroCountIngredients) {
-                                    sb.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} \u2044 {needed}</color> {content}");
+                                    sb.AppendLine($"{MakeColor(needed, gotGroup.Key)}{gotGroup.Key} / {needed}</color> {content}");
                                 }
                             }
                         }
@@ -272,12 +272,13 @@ namespace Revolus.WhatsMissing {
                     }
 
                     if (tooltipNotAllowed.Length > 0) {
-                        tooltip.AppendLine("\n<b>Not allowed:</b>");
+                        tooltip.AppendLine("\n" + "WhatsMissing.NotAllowed".Translate().ToString());
                         tooltip.AppendLine(tooltipNotAllowed.ToString());
                     }
 
+                    var nutritionText = "WhatsMissing.Nutrition".Translate().ToString();
                     var labelRect = listing.Label(
-                        $"{string.Join(" | ", labelList)} {(isNutrition ? $"nutrition ({summary})" : summary)}",
+                        $"{string.Join(" | ", labelList)} {(isNutrition ? $"{nutritionText} ({summary})" : summary)}",
                         tooltip: tooltip.ToString()
                     );
                     if (Widgets.ButtonInvisible(labelRect)) {
@@ -318,7 +319,7 @@ namespace Revolus.WhatsMissing {
                             tooltip.AppendLine(skillReq.Summary);
                             foreach ((var skillLevel, var pawns) in colonistSkills) {
                                 tooltip.AppendLine(
-                                    $"{MakeColor(minLevel, skillLevel)}{skillLevel} \u2044 {minLevel}</color> " +
+                                    $"{MakeColor(minLevel, skillLevel)}{skillLevel} / {minLevel}</color> " +
                                     string.Join("; ", pawns.Select(p => p.Name.ToStringShort))
                                 );
                             }

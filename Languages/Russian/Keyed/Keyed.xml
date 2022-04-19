@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+
+	<WhatsMissing.Settings.HideZeroCountIngredients>Скрыть отсутствующие ингредиенты(Количество 0)</WhatsMissing.Settings.HideZeroCountIngredients>
+	<WhatsMissing.Settings.MaxTooltipsWidth>Максимальная ширина высплывающих подсказок</WhatsMissing.Settings.MaxTooltipsWidth>
+
+	<WhatsMissing.Requires>Требуется(см. всплывающие подсказки):</WhatsMissing.Requires>
+	<WhatsMissing.WorkAmount>работы</WhatsMissing.WorkAmount>
+	<WhatsMissing.HaveNeeded>&lt;b&gt;Есть / Нужно:&lt;/b&gt;</WhatsMissing.HaveNeeded>
+	<WhatsMissing.MixingPossible>(возможно смешивание ингредиентов)</WhatsMissing.MixingPossible>
+	<WhatsMissing.NotAllowed>&lt;b&gt;Не разрешены:&lt;/b&gt;</WhatsMissing.NotAllowed>
+	<WhatsMissing.Nutrition>питательность</WhatsMissing.Nutrition>
+
+</LanguageData>
