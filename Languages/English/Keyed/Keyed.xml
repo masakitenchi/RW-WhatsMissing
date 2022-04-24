@@ -6,9 +6,9 @@
 
 	<WhatsMissing.Requires>Requires (see tooltips, ingredients can be clicked):</WhatsMissing.Requires>
 	<WhatsMissing.WorkAmount>work</WhatsMissing.WorkAmount>
-	<WhatsMissing.HaveNeeded>&lt;b&gt;You have / needed:&lt;/b&gt;</WhatsMissing.HaveNeeded>
+	<WhatsMissing.HaveNeeded>You have / needed:</WhatsMissing.HaveNeeded>
 	<WhatsMissing.MixingPossible>(mixing ingredients is possible)</WhatsMissing.MixingPossible>
-	<WhatsMissing.NotAllowed>&lt;b&gt;Not allowed:&lt;/b&gt;</WhatsMissing.NotAllowed>
+	<WhatsMissing.NotAllowed>Not allowed:</WhatsMissing.NotAllowed>
 	<WhatsMissing.Nutrition>nutrition</WhatsMissing.Nutrition>
 
 </LanguageData>

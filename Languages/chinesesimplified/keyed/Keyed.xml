@@ -4,8 +4,8 @@
   <WhatsMissing.Settings.MaxTooltipsWidth>提示信息的最大宽度</WhatsMissing.Settings.MaxTooltipsWidth>
   <WhatsMissing.Requires>需要（见提示信息，材料可以点击）：</WhatsMissing.Requires>
   <WhatsMissing.WorkAmount>工作量</WhatsMissing.WorkAmount>
-  <WhatsMissing.HaveNeeded>&lt;b&gt;拥有/需要：&lt;/b&gt;</WhatsMissing.HaveNeeded>
+  <WhatsMissing.HaveNeeded>拥有/需要：</WhatsMissing.HaveNeeded>
   <WhatsMissing.MixingPossible>（允许混用材料）</WhatsMissing.MixingPossible>
-  <WhatsMissing.NotAllowed>&lt;b&gt;禁止使用：&lt;/b&gt;</WhatsMissing.NotAllowed>
+  <WhatsMissing.NotAllowed>禁止使用：</WhatsMissing.NotAllowed>
   <WhatsMissing.Nutrition>营养物</WhatsMissing.Nutrition>
 </LanguageData>

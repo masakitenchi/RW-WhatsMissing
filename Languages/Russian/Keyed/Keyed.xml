@@ -6,9 +6,9 @@
 
 	<WhatsMissing.Requires>Требуется(см. всплывающие подсказки):</WhatsMissing.Requires>
 	<WhatsMissing.WorkAmount>работы</WhatsMissing.WorkAmount>
-	<WhatsMissing.HaveNeeded>&lt;b&gt;Есть / Нужно:&lt;/b&gt;</WhatsMissing.HaveNeeded>
+	<WhatsMissing.HaveNeeded>Есть / Нужно:</WhatsMissing.HaveNeeded>
 	<WhatsMissing.MixingPossible>(возможно смешивание ингредиентов)</WhatsMissing.MixingPossible>
-	<WhatsMissing.NotAllowed>&lt;b&gt;Не разрешены:&lt;/b&gt;</WhatsMissing.NotAllowed>
+	<WhatsMissing.NotAllowed>Не разрешены:</WhatsMissing.NotAllowed>
 	<WhatsMissing.Nutrition>питательность</WhatsMissing.Nutrition>
 
 </LanguageData>

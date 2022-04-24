@@ -276,6 +276,7 @@ namespace Revolus.WhatsMissing {
                         tooltip.AppendLine(tooltipNotAllowed.ToString());
                     }
 
+                    // tooltip.AppendLine("."); // Text.CalcSize(string) strip all tags and incorrect calc height with bold text! add extra line
                     var nutritionText = "WhatsMissing.Nutrition".Translate().ToString();
                     var labelRect = listing.Label(
                         $"{string.Join(" | ", labelList)} {(isNutrition ? $"{nutritionText} ({summary})" : summary)}",
