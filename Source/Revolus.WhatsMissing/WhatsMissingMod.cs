@@ -299,7 +299,7 @@ namespace Revolus.WhatsMissing {
                                 colonists.
                                 Select(col => (c: col, s: col.skills.GetSkill(skill))).
                                 Where(cs => !cs.s.TotallyDisabled).
-                                Select(cs => (cs.c, s: cs.s.levelInt)).
+                                Select(cs => (cs.c, s: cs.s.Level)).
                                 GroupBy(cs => cs.s).
                                 Select(g => (
                                     s: g.Key,
