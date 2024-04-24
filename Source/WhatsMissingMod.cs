@@ -68,6 +68,7 @@ namespace Revolus.WhatsMissing {
             return false;
         }
 
+        //[HarmonyDebug]
         [HarmonyPatch(typeof(Dialog_BillConfig), nameof(Dialog_BillConfig.DoWindowContents), new Type[] { typeof(Rect) })]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> Patch__Dialog_BillConfig__DoWindowContents__Transpiler(IEnumerable<CodeInstruction> instructions) {
@@ -131,6 +132,8 @@ namespace Revolus.WhatsMissing {
                                 yield return new CodeInstruction(OpCodes.Call, Method(typeof(WhatsMissingMod), nameof(Patch__Dialog_BillConfig__DoWindowContents__Mixin)));
                                 // return
                                 yield return new CodeInstruction(OpCodes.Ret);
+                                // avoid IL code error （Not sure why it worked without this in 1.4)
+                                yield return new CodeInstruction(OpCodes.Ldnull);
                                 
                                 // Done. Need to emit further opcodes anyway, in order not to break jump labels.
                                 Log.Message("[WhatsMissing] Patched Dialog_BillConfig");
