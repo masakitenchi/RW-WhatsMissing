@@ -68,7 +68,6 @@ namespace Revolus.WhatsMissing {
             return false;
         }
 
-        //[HarmonyDebug]
         [HarmonyPatch(typeof(Dialog_BillConfig), nameof(Dialog_BillConfig.DoWindowContents), new Type[] { typeof(Rect) })]
         [HarmonyTranspiler]
         private static IEnumerable<CodeInstruction> Patch__Dialog_BillConfig__DoWindowContents__Transpiler(IEnumerable<CodeInstruction> instructions) {

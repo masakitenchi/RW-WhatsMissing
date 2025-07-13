@@ -4,11 +4,12 @@
   
   <author>Revolus</author>
   
-  <packageId>Revolus.WhatsMissing.15Temp</packageId>
+  <packageId>Revolus.WhatsMissing</packageId>
   
   <supportedVersions>
     <li>1.4</li>
     <li>1.5</li>
+    <li>1.6</li>
   </supportedVersions>
   
   <modDependencies>

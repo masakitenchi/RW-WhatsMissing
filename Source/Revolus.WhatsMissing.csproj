@@ -5,7 +5,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Optimize>true</Optimize>
     <DebugType>none</DebugType>
-    <Version Condition="'$(Version)' == ''">1.5</Version>
+    <Version Condition="'$(Version)' == ''">1.6</Version>
     <AssemblyName>Revolus.WhatsMissing</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
@@ -15,7 +15,7 @@
     <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Krafs.Publicizer" Version="2.2.1" />
+    <PackageReference Include="Krafs.Publicizer" Version="2.*" />
     <PackageReference Include="Krafs.Rimworld.Ref" Version="$(Version).*" />
     <PackageReference Version="2.3.*" Include="Lib.Harmony" ExcludeAssets="runtime" />
   </ItemGroup>
