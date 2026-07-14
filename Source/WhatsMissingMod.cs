@@ -50,6 +50,31 @@ namespace Revolus.WhatsMissing {
 
         private static string MakeColor(int needed, int got) => $"<color=#{(got < 1 ? "F4003D" : got < needed ? "FFA400" : got < 2 * needed ? "BCF994" : "97B7EF")}>";
 
+        [HarmonyPatch(typeof(Dialog_BillConfig), nameof(Dialog_BillConfig.InitialSize), MethodType.Getter)]
+        [HarmonyPostfix]
+        private static void Dialog_BillConfig_InitialSize_Postfix(ref Vector2 __result) {
+            const float screenMargin = 64f;
+            const float maxWidth = 1200f;
+            const float maxHeight = 900f;
+
+            var availableWidth = Mathf.Max(150f, UI.screenWidth - screenMargin);
+            var availableHeight = Mathf.Max(150f, UI.screenHeight - screenMargin);
+            var preferredWidth = Mathf.Max(__result.x, Mathf.Min(maxWidth, UI.screenWidth * 0.75f));
+            var preferredHeight = Mathf.Max(__result.y, Mathf.Min(maxHeight, UI.screenHeight * 0.85f));
+
+            __result = new Vector2(
+                Mathf.Min(preferredWidth, availableWidth),
+                Mathf.Min(preferredHeight, availableHeight)
+            );
+        }
+
+        [HarmonyPatch(typeof(Dialog_BillConfig), MethodType.Constructor, new Type[] { typeof(Bill_Production), typeof(IntVec3) })]
+        [HarmonyPostfix]
+        private static void Dialog_BillConfig_Constructor_Postfix(Dialog_BillConfig __instance) {
+            __instance.resizeable = true;
+            __instance.draggable = true;
+        }
+
         [HarmonyPatch(MethodType.Getter)]
         [HarmonyPatch(typeof(ActiveTip), nameof(ActiveTip.TipRect))]
         [HarmonyPrefix]
